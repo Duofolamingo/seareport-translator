@@ -1,103 +1,218 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
+import { Button } from "@/components/ui/button";
+import { LANGUAGES } from "@/lib/constants";
+import { ArrowRight, Upload, Languages, FileCheck, Sparkles, ShieldCheck, Zap, Globe } from "lucide-react";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="flex min-h-screen flex-col">
+      <Navbar />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+      <main className="flex-1">
+        {/* Hero */}
+        <section className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-b from-white via-blue-50/40 to-slate-50">
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(37,99,235,0.08),transparent)]" />
+          <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8 lg:py-32">
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                <Sparkles className="h-3.5 w-3.5" />
+                专为跨境电商打造 · AI 翻译 + 标准智能映射
+              </div>
+              <h1 className="mt-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
+                一键翻译质检报告
+                <br />
+                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  轻松出海东南亚
+                </span>
+              </h1>
+              <p className="mt-6 text-base text-slate-600 sm:text-lg">
+                5 分钟将中文产品质检报告（PDF/图片）翻译为 7 种东南亚官方语言，
+                并自动生成 GB 国家标准与目标国对应标准的对照附页。
+              </p>
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Button asChild size="lg" className="w-full sm:w-auto">
+                  <Link href="/translate">
+                    立即翻译
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
+                  <Link href="/standards">查看标准库</Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* 国旗横排 */}
+            <div className="mt-16">
+              <p className="text-center text-xs font-medium uppercase tracking-wider text-slate-500">
+                支持 7 种东南亚官方语言
+              </p>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+                {LANGUAGES.map((l) => (
+                  <div
+                    key={l.code}
+                    className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                  >
+                    <span className="text-2xl leading-none">{l.flag}</span>
+                    <span className="font-medium text-slate-700">{l.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 流程 */}
+        <section className="border-b border-slate-200 bg-white py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900">三步完成翻译</h2>
+              <p className="mt-3 text-slate-600">从上传质检报告到下载翻译结果，只需 5 分钟</p>
+            </div>
+            <div className="mt-12 grid gap-8 md:grid-cols-3">
+              {[
+                {
+                  icon: Upload,
+                  title: "1. 上传报告",
+                  desc: "支持 PDF / JPG / PNG，单文件最大 50MB。系统自动识别扫描件或原生文档。",
+                },
+                {
+                  icon: Languages,
+                  title: "2. 选择语言 + AI 翻译",
+                  desc: "选择目标语言（7 种东南亚语言），系统自动 OCR 识别 + 术语保护 + AI 翻译 + 标准映射。",
+                },
+                {
+                  icon: FileCheck,
+                  title: "3. 下载结果",
+                  desc: "生成 PDF / Word / 双语对照版，报告末尾自动附加中-外标准对照表。",
+                },
+              ].map((step) => (
+                <div
+                  key={step.title}
+                  className="rounded-2xl border border-slate-200 bg-slate-50/50 p-6 transition-all hover:border-blue-200 hover:bg-white hover:shadow-md"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white">
+                    <step.icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-slate-900">{step.title}</h3>
+                  <p className="mt-2 text-sm text-slate-600">{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 核心价值 */}
+        <section className="border-b border-slate-200 bg-slate-50 py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid items-center gap-12 lg:grid-cols-2">
+              <div>
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                  为什么选择 SeaReport Translator？
+                </h2>
+                <p className="mt-4 text-slate-600">
+                  传统人工翻译一份质检报告需要 1-2 天，价格 500-2000 元。
+                  SeaReport Translator 通过 AI 自动化，将时间和成本压缩到 5 分钟和几元钱。
+                </p>
+                <div className="mt-8 space-y-4">
+                  {[
+                    {
+                      icon: Zap,
+                      title: "5 分钟出结果",
+                      desc: "上传后无需等待，AI 自动完成 OCR、翻译、文档生成全流程。",
+                    },
+                    {
+                      icon: Globe,
+                      title: "7 国语言全覆盖",
+                      desc: "泰语、越南语、印尼语、马来语、柬埔寨语、缅甸语、老挝语。",
+                    },
+                    {
+                      icon: ShieldCheck,
+                      title: "标准智能映射",
+                      desc: "自动识别 GB 标准并匹配目标国对应标准，附页一目了然。",
+                    },
+                  ].map((f) => (
+                    <div key={f.title} className="flex gap-4">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                        <f.icon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-slate-900">{f.title}</h3>
+                        <p className="mt-1 text-sm text-slate-600">{f.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium text-slate-500">翻译报告 / Translation Report</div>
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">已完成</span>
+                  </div>
+                  <div className="mt-4 space-y-3 text-sm">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <span className="text-slate-500">源文件</span>
+                      <span className="text-slate-900">QC-Report-2026.pdf</span>
+                    </div>
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <span className="text-slate-500">目标语言</span>
+                      <span className="flex items-center gap-1 text-slate-900">🇹🇭 泰语</span>
+                    </div>
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <span className="text-slate-500">检测项目</span>
+                      <span className="text-slate-900">3 项</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">识别 GB 标准</span>
+                      <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs text-blue-700">GB 18401-2010</span>
+                    </div>
+                  </div>
+                  <div className="mt-5 rounded-lg border border-blue-100 bg-blue-50/60 p-3 text-xs">
+                    <div className="font-semibold text-blue-900">标准对照表</div>
+                    <div className="mt-1 text-blue-700">
+                      GB 18401-2010 → TIS 223 (泰国纺织产品安全标准)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="bg-blue-600 py-20">
+          <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              立即开始第一次翻译
+            </h2>
+            <p className="mt-3 text-base text-blue-100">
+              免费注册即享 1 次翻译额度，无需信用卡。
+            </p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
+                <Link href="/translate">
+                  免费试用
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="w-full border-white/20 bg-transparent text-white hover:bg-white/10 sm:w-auto"
+              >
+                <Link href="/pricing">查看套餐</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      <Footer />
     </div>
   );
 }

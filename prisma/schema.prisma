@@ -1,0 +1,143 @@
+// SeaReport Translator - Prisma Schema
+// 数据库：SQLite（不支持 enum，全部用 String）
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============== 用户与会话 ==============
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  password  String?
+  name      String?
+  company   String?
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders        Order[]
+  sessions      Session[]
+  subscriptions Subscription[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ============== 订单 / 翻译任务 ==============
+
+model Order {
+  id        String @id @default(cuid())
+  userId    String
+  fileName  String
+  fileUrl   String
+  fileType  String
+  pageCount Int?
+
+  targetLang   String
+  outputFormat String  @default("PDF")
+  status       String  @default("PENDING")
+  reportType   String?
+
+  translatedUrl String?
+  wordUrl       String?
+  comparisonUrl String?
+  standardSheet String?
+  ocrText       String?
+  translatedText String?
+  errorMessage  String?
+
+  progress        Int     @default(0)
+  progressMessage String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([status])
+}
+
+// ============== 标准映射 ==============
+
+model StandardMapping {
+  id              String   @id @default(cuid())
+  gbStandard      String
+  gbName          String
+  targetCountry   String
+  targetStandard  String
+  targetName      String
+  productCategory String
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([gbStandard, targetCountry, productCategory])
+  @@index([gbStandard])
+}
+
+// ============== 术语库 ==============
+
+model Term {
+  id         String   @id @default(cuid())
+  chinese    String
+  thai       String?
+  vietnamese String?
+  indonesian String?
+  malay      String?
+  khmer      String?
+  burmese    String?
+  lao        String?
+  category   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([chinese, category])
+}
+
+// ============== 订阅 / 套餐 ==============
+
+model Subscription {
+  id        String   @id @default(cuid())
+  userId    String
+  plan      String
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ============== 验证码 ==============
+
+model VerificationCode {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+}
