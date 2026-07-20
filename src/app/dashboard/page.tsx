@@ -93,8 +93,8 @@ export default async function DashboardHome() {
                           {lang?.flag} {lang?.name} · {formatDate(o.createdAt)}
                         </p>
                       </div>
-                      <Badge className={ORDER_STATUS_COLOR[o.status]}>
-                        {ORDER_STATUS_LABEL[o.status]}
+                      <Badge className={ORDER_STATUS_COLOR[o.status as keyof typeof ORDER_STATUS_COLOR]}>
+                        {ORDER_STATUS_LABEL[o.status as keyof typeof ORDER_STATUS_LABEL]}
                       </Badge>
                     </Link>
                   );
