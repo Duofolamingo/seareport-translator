@@ -2,6 +2,7 @@
 // 使用 puppeteer-core + 系统浏览器（优先查找已安装的 Chrome）
 
 import { saveFile } from "./storage";
+import { existsSync } from "fs";
 
 async function findChromePath(): Promise<string | null> {
   const paths = [
