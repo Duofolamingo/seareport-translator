@@ -4,6 +4,7 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
+import { head } from "@vercel/blob";
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || "./uploads";
 const isVercel = process.env.VERCEL === "1";
@@ -19,8 +20,17 @@ export async function GET(_req: Request, ctx: { params: Promise<{ file: string }
     "application/octet-stream";
 
   if (isVercel) {
-    // Vercel Blob：通过公开 URL 重定向
-    return Response.redirect(`${process.env.NEXTAUTH_URL}/api/download/${file}`, 307);
+    try {
+      const blob = await head(`outputs/${file}`, {
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      });
+      if (blob) {
+        return Response.redirect(blob.url, 302);
+      }
+    } catch {
+      // blob not found
+    }
+    return new Response("Not found", { status: 404 });
   }
 
   // 本地文件系统
