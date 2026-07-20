@@ -186,12 +186,41 @@ function buildReportHtml(opts: {
 }): string {
   const { title, fileName, sourceText, translatedText, standardSheetHtml, bilingual } = opts;
 
+  const stampsHtml = `
+<div class="stamps">
+  <div class="stamp cma">
+    <div class="stamp-inner">
+      <div class="stamp-text">CMA</div>
+      <div class="stamp-sub">检验检测机构<br/>资质认定</div>
+    </div>
+  </div>
+  <div class="stamp ccc">
+    <div class="stamp-inner">
+      <div class="stamp-text">CCC</div>
+      <div class="stamp-sub">中国强制认证</div>
+    </div>
+  </div>
+</div>`;
+
+  const stampsCss = `
+.stamps { position: absolute; top: 20px; right: 20px; display: flex; gap: 16px; z-index: 100; }
+.stamp { width: 90px; height: 70px; display: flex; align-items: center; justify-content: center; font-family: "SimHei", "Microsoft YaHei", sans-serif; }
+.stamp-inner { text-align: center; width: 100%; }
+.stamp.cma { border: 3px solid #dc2626; border-radius: 50%; padding: 4px; }
+.stamp.cma .stamp-inner { border: 2px solid #dc2626; border-radius: 45%; padding: 6px 2px; }
+.stamp.cma .stamp-text { color: #dc2626; font-size: 20px; font-weight: bold; letter-spacing: 2px; }
+.stamp.cma .stamp-sub { color: #dc2626; font-size: 7px; line-height: 1.2; margin-top: 2px; }
+.stamp.ccc { border: 3px solid #000; border-radius: 50%; padding: 4px; }
+.stamp.ccc .stamp-inner { border: 2px solid #000; border-radius: 45%; padding: 8px 2px; }
+.stamp.ccc .stamp-text { color: #000; font-size: 20px; font-weight: bold; letter-spacing: 2px; }
+.stamp.ccc .stamp-sub { color: #000; font-size: 7px; line-height: 1.2; margin-top: 2px; }`;
+
   if (bilingual) {
     return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>${escape(title)}</title>
 <style>
-body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; padding: 20px; line-height: 1.6; color: #0f172a; }
-h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 8px; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; padding: 20px; line-height: 1.6; color: #0f172a; position: relative; }
+h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 8px; margin-right: 220px; }
 h2 { color: #1e40af; margin-top: 30px; }
 .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .col { padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; }
@@ -201,7 +230,9 @@ h2 { color: #1e40af; margin-top: 30px; }
 .standard-sheet th, .standard-sheet td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; }
 .standard-sheet th { background: #f1f5f9; }
 .meta { color: #64748b; font-size: 12px; margin-bottom: 16px; }
+${stampsCss}
 </style></head><body>
+${stampsHtml}
 <h1>${escape(title)}</h1>
 <div class="meta">源文件: ${escape(fileName)} | 生成时间: ${new Date().toLocaleString("zh-CN")} | SeaReport Translator</div>
 <h2>双语对照 / Bilingual Comparison</h2>
@@ -216,8 +247,8 @@ ${standardSheetHtml}
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>${escape(title)}</title>
 <style>
-body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; padding: 20px; line-height: 1.6; color: #0f172a; }
-h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 8px; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; padding: 20px; line-height: 1.6; color: #0f172a; position: relative; }
+h1 { color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 8px; margin-right: 220px; }
 h2 { color: #1e40af; margin-top: 30px; }
 pre { white-space: pre-wrap; font-family: inherit; }
 .meta { color: #64748b; font-size: 12px; margin-bottom: 16px; }
@@ -225,7 +256,9 @@ pre { white-space: pre-wrap; font-family: inherit; }
 .standard-sheet table { width: 100%; border-collapse: collapse; margin-top: 10px; }
 .standard-sheet th, .standard-sheet td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; }
 .standard-sheet th { background: #f1f5f9; }
+${stampsCss}
 </style></head><body>
+${stampsHtml}
 <h1>${escape(title)}</h1>
 <div class="meta">源文件: ${escape(fileName)} | 生成时间: ${new Date().toLocaleString("zh-CN")} | SeaReport Translator</div>
 <h2>翻译正文 / Translated Content</h2>
