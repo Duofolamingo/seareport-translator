@@ -1,12 +1,12 @@
 // SeaReport Translator - Prisma Schema
-// 数据库：SQLite（不支持 enum，全部用 String）
+// 数据库：PostgreSQL（生产环境）/ SQLite（开发环境）
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = env("DATABASE_PROVIDER", "sqlite")
   url      = env("DATABASE_URL")
 }
 
