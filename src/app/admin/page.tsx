@@ -90,7 +90,7 @@ export default async function AdminHome() {
                         </td>
                         <td className="px-4 py-3">{lang ? `${lang.flag} ${lang.name}` : o.targetLang}</td>
                         <td className="px-4 py-3">
-                          <Badge className={ORDER_STATUS_COLOR[o.status]}>{ORDER_STATUS_LABEL[o.status]}</Badge>
+                          <Badge className={ORDER_STATUS_COLOR[o.status as keyof typeof ORDER_STATUS_COLOR]}>{ORDER_STATUS_LABEL[o.status as keyof typeof ORDER_STATUS_LABEL]}</Badge>
                         </td>
                         <td className="px-4 py-3 text-xs text-slate-500">{formatDate(o.createdAt)}</td>
                       </tr>
