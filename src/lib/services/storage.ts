@@ -23,6 +23,7 @@ export async function saveFile(
     const blob = await put(path, buffer, {
       access: "public",
       contentType: options?.contentType,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
     });
     return { url: blob.url, pathname: path };
   }
