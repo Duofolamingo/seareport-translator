@@ -8,11 +8,8 @@ import { findStandardMappings, extractGbStandards, generateStandardSheetHtml, CO
 import { generatePdf, savePdf } from "./pdfGenerator";
 import { generateWord, saveWord } from "./wordGenerator";
 import { publishProgress } from "./sse";
-import { readFile } from "fs/promises";
-import { join } from "path";
+import { readFileBuffer } from "./storage";
 import { LANGUAGES } from "@/lib/constants";
-
-const UPLOAD_DIR = process.env.UPLOAD_DIR || "./uploads";
 
 export type PipelineInput = {
   orderId: string;
@@ -32,7 +29,7 @@ export async function runTranslationPipeline(input: PipelineInput): Promise<void
     // === 1. OCR / 文本提取 ===
     await updateOrderStatus(orderId, "OCR_PROCESSING", 10, "正在识别文档内容...");
     const localPath = resolveLocalPath(fileUrl);
-    const buffer = await readFile(localPath);
+    const buffer = await readFileBuffer(localPath);
     let ocrResult: OcrResult;
 
     if (fileType === "PDF") {
@@ -158,9 +155,9 @@ export async function runTranslationPipeline(input: PipelineInput): Promise<void
 }
 
 function resolveLocalPath(url: string): string {
-  // /api/upload/xxx → ./uploads/xxx
+  // /api/upload/xxx → xxx
   const file = url.replace(/^\/api\/upload\//, "").replace(/^\/api\/download\//, "");
-  return join(process.cwd(), UPLOAD_DIR, file);
+  return file;
 }
 
 async function updateOrderStatus(

@@ -1,11 +1,7 @@
 // PDF 生成服务
 // 使用 puppeteer-core + 系统浏览器（优先查找已安装的 Chrome）
 
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import { existsSync } from "fs";
-
-const UPLOAD_DIR = process.env.UPLOAD_DIR || "./uploads";
+import { saveFile } from "./storage";
 
 async function findChromePath(): Promise<string | null> {
   const paths = [
@@ -73,12 +69,7 @@ async function loadPuppeteerCore(): Promise<any | null> {
 }
 
 export async function savePdf(buffer: Buffer, fileName: string): Promise<string> {
-  const dir = join(process.cwd(), UPLOAD_DIR, "outputs");
-  if (!existsSync(dir)) await mkdir(dir, { recursive: true });
-
   const actualFileName = fileName.replace(/\.pdf$/, "") + ".pdf";
-  const filePath = join(dir, actualFileName);
-
-  await writeFile(filePath, buffer);
-  return `/api/download/${actualFileName}`;
+  const { url } = await saveFile(`outputs/${actualFileName}`, buffer, { contentType: "application/pdf" });
+  return url;
 }

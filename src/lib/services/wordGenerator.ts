@@ -1,10 +1,6 @@
 // Word 文档生成服务（docx 库）
 
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import { existsSync } from "fs";
-
-const UPLOAD_DIR = process.env.UPLOAD_DIR || "./uploads";
+import { saveFile } from "./storage";
 
 export async function generateWord(title: string, content: string, lang: string): Promise<Buffer> {
   const {
@@ -60,9 +56,8 @@ export async function generateWord(title: string, content: string, lang: string)
 }
 
 export async function saveWord(buffer: Buffer, fileName: string): Promise<string> {
-  const dir = join(process.cwd(), UPLOAD_DIR, "outputs");
-  if (!existsSync(dir)) await mkdir(dir, { recursive: true });
-  const filePath = join(dir, fileName);
-  await writeFile(filePath, buffer);
-  return `/api/download/${fileName}`;
+  const { url } = await saveFile(`outputs/${fileName}`, buffer, {
+    contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  });
+  return url;
 }

@@ -1,15 +1,12 @@
 // 文件上传
 // 限制：PDF / JPG / PNG，最大 50MB
-// 保存到 ./uploads/ 目录
+// Vercel 环境使用 Blob 存储，本地使用文件系统
 
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import { existsSync } from "fs";
 import { nanoid } from "nanoid";
 import { getCurrentUser } from "@/lib/auth";
 import { ok, fail, handleError } from "@/lib/api";
+import { saveFile } from "@/lib/services/storage";
 
-const UPLOAD_DIR = process.env.UPLOAD_DIR || "./uploads";
 const MAX_SIZE = parseInt(process.env.MAX_FILE_SIZE || "52428800"); // 50MB
 const ALLOWED = new Set(["application/pdf", "image/jpeg", "image/jpg", "image/png"]);
 
@@ -24,19 +21,16 @@ export async function POST(req: Request) {
     if (file.size > MAX_SIZE) return fail(`文件超过限制 (${Math.round(MAX_SIZE / 1024 / 1024)}MB)`, 400, "TOO_LARGE");
     if (!ALLOWED.has(file.type)) return fail("仅支持 PDF / JPG / PNG", 400, "UNSUPPORTED_TYPE");
 
-    const dir = join(process.cwd(), UPLOAD_DIR);
-    if (!existsSync(dir)) await mkdir(dir, { recursive: true });
-
     const ext = file.name.split(".").pop() || "pdf";
     const fileName = `${nanoid(16)}-${Date.now()}.${ext}`;
-    const filePath = join(dir, fileName);
     const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filePath, buffer);
+
+    const { url } = await saveFile(fileName, buffer, { contentType: file.type });
 
     return ok({
       fileName: file.name,
       savedName: fileName,
-      fileUrl: `/api/upload/${fileName}`,
+      fileUrl: url,
       fileSize: file.size,
       fileType: file.type,
     });
