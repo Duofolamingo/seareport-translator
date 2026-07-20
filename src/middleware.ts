@@ -1,7 +1,6 @@
 // 路由守卫：保护 /admin/* 路径
 
 import { NextResponse, type NextRequest } from "next/server";
-import { jwtVerify } from "jose";
 
 // 注：本项目使用 cookie + DB session 模式，无需 JWT
 // 此中间件仅作为路径前缀保护示例，实际鉴权在 server components 中处理
