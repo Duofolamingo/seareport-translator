@@ -27,7 +27,7 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
       orderId: order.id,
       fileUrl: order.fileUrl,
       fileName: order.fileName,
-      fileType: order.fileType,
+      fileType: order.fileType as "PDF" | "IMAGE",
       targetLang: order.targetLang as any,
       outputFormat: order.outputFormat as any,
     }).catch((err) => console.error("[Retry Pipeline Error]", err));
