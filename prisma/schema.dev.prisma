@@ -1,16 +1,13 @@
-// SeaReport Translator - Prisma Schema
-// 数据库：PostgreSQL（Vercel 生产环境）
+// SeaReport Translator - Prisma Schema（本地开发用 SQLite）
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./seareport.db"
 }
-
-// ============== 用户与会话 ==============
 
 model User {
   id        String   @id @default(cuid())
@@ -38,8 +35,6 @@ model Session {
 
   @@index([userId])
 }
-
-// ============== 订单 / 翻译任务 ==============
 
 model Order {
   id        String @id @default(cuid())
@@ -75,8 +70,6 @@ model Order {
   @@index([status])
 }
 
-// ============== 标准映射 ==============
-
 model StandardMapping {
   id              String   @id @default(cuid())
   gbStandard      String
@@ -92,8 +85,6 @@ model StandardMapping {
   @@unique([gbStandard, targetCountry, productCategory])
   @@index([gbStandard])
 }
-
-// ============== 术语库 ==============
 
 model Term {
   id         String   @id @default(cuid())
@@ -112,8 +103,6 @@ model Term {
   @@unique([chinese, category])
 }
 
-// ============== 订阅 / 套餐 ==============
-
 model Subscription {
   id        String   @id @default(cuid())
   userId    String
@@ -128,8 +117,6 @@ model Subscription {
 
   @@index([userId])
 }
-
-// ============== 验证码 ==============
 
 model VerificationCode {
   id        String   @id @default(cuid())
