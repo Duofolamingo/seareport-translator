@@ -13,7 +13,7 @@ const CreateSchema = z.object({
   fileType: z.enum(["PDF", "IMAGE"]),
   pageCount: z.number().int().positive().optional(),
   targetLang: z.enum(["TH", "VI", "ID", "MS", "KM", "MY", "LO"]),
-  outputFormat: z.enum(["PDF", "WORD", "COMPARISON"]).default("PDF"),
+  outputFormat: z.enum(["PDF", "WORD", "PNG", "JPG", "COMPARISON"]).default("PDF"),
   reportType: z.enum(["ELECTRONICS", "TEXTILE", "TOY", "FOOD", "COSMETICS", "BUILDING", "FOOTWEAR", "OTHER"]).optional(),
 });
 
