@@ -4,7 +4,7 @@
 // 3. 生成标准对照附页
 
 import { prisma } from "@/lib/prisma";
-import type { Country, ReportType } from "@prisma/client";
+import type { Country, ReportType } from "@/lib/constants";
 
 export type StandardMatch = {
   gbStandard: string;
@@ -40,10 +40,10 @@ export async function findStandardMappings(
     return rows.map((r) => ({
       gbStandard: r.gbStandard,
       gbName: r.gbName,
-      targetCountry: r.targetCountry,
+      targetCountry: r.targetCountry as Country,
       targetStandard: r.targetStandard,
       targetName: r.targetName,
-      productCategory: r.productCategory,
+      productCategory: r.productCategory as ReportType,
       notes: r.notes,
     }));
   } catch {

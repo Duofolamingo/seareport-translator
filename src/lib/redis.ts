@@ -7,6 +7,10 @@ class MemoryStore {
   private store = new Map<string, string>();
   private channels = new Map<string, Set<Callback>>();
 
+  duplicate() {
+    return this;
+  }
+
   get(k: string) {
     return this.store.get(k) ?? null;
   }
@@ -31,10 +35,20 @@ class MemoryStore {
     if (subs) subs.forEach((cb) => cb(payload));
     return Promise.resolve();
   }
-  subscribe(channel: string, cb: Callback) {
-    if (!this.channels.has(channel)) this.channels.set(channel, new Set());
-    this.channels.get(channel)!.add(cb);
+  subscribe(channel: string, cb?: Callback) {
+    if (cb) {
+      if (!this.channels.has(channel)) this.channels.set(channel, new Set());
+      this.channels.get(channel)!.add(cb);
+    }
     return Promise.resolve();
+  }
+  on(event: string, handler: (channel: string, msg: string) => void) {
+    if (event === "message") {
+      const allChannels = this.channels;
+      allChannels.forEach((cbs, channel) => {
+        cbs.add((payload) => handler(channel, payload));
+      });
+    }
   }
   disconnect() {}
 }

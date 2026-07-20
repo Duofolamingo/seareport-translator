@@ -5,7 +5,7 @@
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/constants";
 import { nanoid } from "nanoid";
 
 const COOKIE_NAME = "seareport_session";
@@ -72,7 +72,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     phone: session.user.phone,
     name: session.user.name,
     company: session.user.company,
-    role: session.user.role,
+    role: session.user.role as Role,
   };
 }
 

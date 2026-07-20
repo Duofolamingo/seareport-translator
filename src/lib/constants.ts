@@ -2,6 +2,10 @@
 
 export type Result<T> = { success: true; data: T } | { success: false; error: string };
 
+export type Role = "USER" | "ADMIN";
+
+export type Country = "THAILAND" | "VIETNAM" | "INDONESIA" | "MALAYSIA" | "PHILIPPINES" | "CAMBODIA" | "MYANMAR" | "LAOS";
+
 export type Language = {
   code: "TH" | "VI" | "ID" | "MS" | "KM" | "MY" | "LO";
   name: string;

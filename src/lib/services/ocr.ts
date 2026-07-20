@@ -1,7 +1,7 @@
 // OCR 服务 - 封装 Google Cloud Vision
 // 开发环境（MOCK_OCR=true）使用模拟数据，无需真实凭证
 
-import type { ReportType } from "@prisma/client";
+import type { ReportType } from "@/lib/constants";
 
 export type OcrResult = {
   text: string;
