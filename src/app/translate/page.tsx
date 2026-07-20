@@ -21,6 +21,8 @@ type UploadedFile = {
 const OUTPUT_OPTIONS = [
   { value: "PDF" as const, label: "PDF", desc: "翻译报告 PDF" },
   { value: "WORD" as const, label: "Word", desc: "可编辑 .docx 文件" },
+  { value: "PNG" as const, label: "PNG 图片", desc: "高清 PNG 图片格式" },
+  { value: "JPG" as const, label: "JPG 图片", desc: "压缩 JPG 图片格式" },
   { value: "COMPARISON" as const, label: "双语对照版", desc: "PDF + 双语对照 + 标准表" },
 ];
 
@@ -30,7 +32,7 @@ export default function TranslatePage() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [targetLang, setTargetLang] = useState<Language["code"]>("TH");
-  const [outputFormat, setOutputFormat] = useState<"PDF" | "WORD" | "COMPARISON">("PDF");
+  const [outputFormat, setOutputFormat] = useState<"PDF" | "WORD" | "PNG" | "JPG" | "COMPARISON">("PDF");
   const submittingRef = useRef(false);
 
   const onDrop = useCallback(async (accepted: File[]) => {

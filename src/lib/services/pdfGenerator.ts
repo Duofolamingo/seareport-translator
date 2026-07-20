@@ -74,3 +74,68 @@ export async function savePdf(buffer: Buffer, fileName: string): Promise<string>
   const { url } = await saveFile(`outputs/${actualFileName}`, buffer, { contentType: "application/pdf" });
   return url;
 }
+
+export async function generateImage(html: string, format: "png" | "jpeg" = "png"): Promise<Buffer> {
+  try {
+    const chromePath = await findChromePath();
+    if (!chromePath) {
+      console.warn("[Image] Chrome/Chromium not found, returning HTML");
+      return Buffer.from(html, "utf-8");
+    }
+
+    const puppeteer = await loadPuppeteerCore();
+    if (!puppeteer) {
+      console.warn("[Image] puppeteer-core not available, returning HTML");
+      return Buffer.from(html, "utf-8");
+    }
+
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: chromePath,
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
+    });
+
+    try {
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: "networkidle0", timeout: 30000 });
+
+      const body = await page.$("body");
+      if (!body) {
+        console.warn("[Image] Body element not found");
+        return Buffer.from(html, "utf-8");
+      }
+
+      const clip = await body.boundingBox();
+      if (!clip) {
+        console.warn("[Image] Bounding box not found");
+        return Buffer.from(html, "utf-8");
+      }
+
+      const screenshot = await page.screenshot({
+        type: format,
+        clip: {
+          x: clip.x,
+          y: clip.y,
+          width: Math.min(clip.width, 1920),
+          height: clip.height,
+        },
+        printBackground: true,
+        quality: 100,
+      });
+      return Buffer.from(screenshot);
+    } finally {
+      await browser.close();
+    }
+  } catch (err) {
+    console.warn("[Image] Puppeteer error, returning HTML:", (err as Error).message);
+    return Buffer.from(html, "utf-8");
+  }
+}
+
+export async function saveImage(buffer: Buffer, fileName: string, format: "png" | "jpeg"): Promise<string> {
+  const ext = format === "png" ? "png" : "jpg";
+  const actualFileName = fileName.replace(/\.(pdf|docx)$/, "") + `.${ext}`;
+  const contentType = format === "png" ? "image/png" : "image/jpeg";
+  const { url } = await saveFile(`outputs/${actualFileName}`, buffer, { contentType });
+  return url;
+}

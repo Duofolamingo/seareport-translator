@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { extractPdfText, runOcr, type OcrResult } from "./ocr";
 import { translateText, type TargetLang } from "./translate";
 import { findStandardMappings, extractGbStandards, generateStandardSheetHtml, COUNTRY_LABEL, COUNTRY_LABEL_EN } from "./standardMapper";
-import { generatePdf, savePdf } from "./pdfGenerator";
+import { generatePdf, savePdf, generateImage, saveImage } from "./pdfGenerator";
 import { generateWord, saveWord } from "./wordGenerator";
 import { publishProgress } from "./sse";
 import { readFileBuffer } from "./storage";
@@ -17,7 +17,7 @@ export type PipelineInput = {
   fileName: string;
   fileType: "PDF" | "IMAGE";
   targetLang: TargetLang;
-  outputFormat: "PDF" | "WORD" | "COMPARISON";
+  outputFormat: "PDF" | "WORD" | "PNG" | "JPG" | "COMPARISON";
 };
 
 export async function runTranslationPipeline(input: PipelineInput): Promise<void> {
@@ -90,6 +90,7 @@ export async function runTranslationPipeline(input: PipelineInput): Promise<void
     const timestamp = Date.now();
     let pdfUrl: string | null = null;
     let wordUrl: string | null = null;
+    let imageUrl: string | null = null;
     let comparisonUrl: string | null = null;
 
     if (outputFormat === "PDF" || outputFormat === "COMPARISON") {
@@ -99,6 +100,14 @@ export async function runTranslationPipeline(input: PipelineInput): Promise<void
     if (outputFormat === "WORD" || outputFormat === "COMPARISON") {
       const wordBuf = await generateWord(`Quality Inspection Report`, fullHtml, targetLang);
       wordUrl = await saveWord(wordBuf, `${orderId}-${timestamp}.docx`);
+    }
+    if (outputFormat === "PNG") {
+      const pngBuf = await generateImage(fullHtml, "png");
+      imageUrl = await saveImage(pngBuf, `${orderId}-${timestamp}.png`, "png");
+    }
+    if (outputFormat === "JPG") {
+      const jpgBuf = await generateImage(fullHtml, "jpeg");
+      imageUrl = await saveImage(jpgBuf, `${orderId}-${timestamp}.jpg`, "jpeg");
     }
     if (outputFormat === "COMPARISON") {
       const comparisonHtml = buildReportHtml({
@@ -121,7 +130,7 @@ export async function runTranslationPipeline(input: PipelineInput): Promise<void
         progress: 100,
         progressMessage: "翻译完成！",
         completedAt: new Date(),
-        translatedUrl: pdfUrl,
+        translatedUrl: pdfUrl || imageUrl,
         wordUrl,
         comparisonUrl,
       },
@@ -131,7 +140,7 @@ export async function runTranslationPipeline(input: PipelineInput): Promise<void
       status: "COMPLETED",
       progress: 100,
       message: "翻译完成！",
-      downloadUrl: pdfUrl || wordUrl || comparisonUrl || undefined,
+      downloadUrl: pdfUrl || wordUrl || imageUrl || comparisonUrl || undefined,
     });
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "翻译失败";
