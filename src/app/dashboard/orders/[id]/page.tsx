@@ -120,28 +120,28 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                   </Link>
                 )}
                 {order.translatedUrl && (
-                  <a href={order.translatedUrl} className="flex items-center justify-between rounded-lg border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/50">
-                    <span className="flex items-center gap-2 text-sm font-medium text-slate-900">
-                      <FileText className="h-4 w-4 text-blue-600" /> PDF 版
-                    </span>
-                    <Download className="h-4 w-4 text-slate-400" />
-                  </a>
+                  <DownloadLink
+                    href={order.translatedUrl}
+                    fileName={`${order.fileName.replace(/\.[^.]+$/, '')}_翻译版.${order.outputFormat === 'PNG' ? 'png' : order.outputFormat === 'JPG' ? 'jpg' : 'pdf'}`}
+                    label="翻译版"
+                    icon={<FileText className="h-4 w-4 text-blue-600" />}
+                  />
                 )}
                 {order.wordUrl && (
-                  <a href={order.wordUrl} className="flex items-center justify-between rounded-lg border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/50">
-                    <span className="flex items-center gap-2 text-sm font-medium text-slate-900">
-                      <FileType className="h-4 w-4 text-blue-600" /> Word 版
-                    </span>
-                    <Download className="h-4 w-4 text-slate-400" />
-                  </a>
+                  <DownloadLink
+                    href={order.wordUrl}
+                    fileName={`${order.fileName.replace(/\.[^.]+$/, '')}_翻译版.docx`}
+                    label="Word 版"
+                    icon={<FileType className="h-4 w-4 text-blue-600" />}
+                  />
                 )}
                 {order.comparisonUrl && (
-                  <a href={order.comparisonUrl} className="flex items-center justify-between rounded-lg border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/50">
-                    <span className="flex items-center gap-2 text-sm font-medium text-slate-900">
-                      <Globe className="h-4 w-4 text-blue-600" /> 双语对照
-                    </span>
-                    <Download className="h-4 w-4 text-slate-400" />
-                  </a>
+                  <DownloadLink
+                    href={order.comparisonUrl}
+                    fileName={`${order.fileName.replace(/\.[^.]+$/, '')}_双语对照版.pdf`}
+                    label="双语对照"
+                    icon={<Globe className="h-4 w-4 text-blue-600" />}
+                  />
                 )}
               </>
             )}
@@ -178,5 +178,40 @@ function Item({ label, value }: { label: string; value: string }) {
       <dt className="text-xs text-slate-500">{label}</dt>
       <dd className="mt-1 text-slate-900">{value}</dd>
     </div>
+  );
+}
+
+function DownloadLink({ href, fileName, label, icon }: { href: string; fileName: string; label: string; icon: React.ReactNode }) {
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(href);
+      if (!response.ok) throw new Error("Download failed");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download error:", err);
+      window.open(href, "_blank");
+    }
+  };
+
+  return (
+    <a
+      href={href}
+      onClick={handleDownload}
+      className="flex items-center justify-between rounded-lg border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/50"
+    >
+      <span className="flex items-center gap-2 text-sm font-medium text-slate-900">
+        {icon} {label}
+      </span>
+      <Download className="h-4 w-4 text-slate-400" />
+    </a>
   );
 }

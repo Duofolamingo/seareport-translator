@@ -89,14 +89,16 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
         {order.translatedUrl && (
           <DownloadCard
             href={order.translatedUrl}
-            title="PDF 翻译版"
-            desc="完整翻译报告 PDF"
+            fileName={`${order.fileName.replace(/\.[^.]+$/, '')}_翻译版.${order.outputFormat === 'PNG' ? 'png' : order.outputFormat === 'JPG' ? 'jpg' : 'pdf'}`}
+            title="翻译版"
+            desc={order.outputFormat === 'PNG' ? '高清 PNG 图片' : order.outputFormat === 'JPG' ? '压缩 JPG 图片' : '完整翻译报告 PDF'}
             icon={<FileText className="h-5 w-5" />}
           />
         )}
         {order.wordUrl && (
           <DownloadCard
             href={order.wordUrl}
+            fileName={`${order.fileName.replace(/\.[^.]+$/, '')}_翻译版.docx`}
             title="Word 翻译版"
             desc="可编辑 .docx 文件"
             icon={<FileType className="h-5 w-5" />}
@@ -105,6 +107,7 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
         {order.comparisonUrl && (
           <DownloadCard
             href={order.comparisonUrl}
+            fileName={`${order.fileName.replace(/\.[^.]+$/, '')}_双语对照版.pdf`}
             title="双语对照版"
             desc="中-外对照 + 标准表"
             icon={<Globe className="h-5 w-5" />}
@@ -187,10 +190,31 @@ function Info({ label, value }: { label: string; value: string }) {
   );
 }
 
-function DownloadCard({ href, title, desc, icon }: { href: string; title: string; desc: string; icon: React.ReactNode }) {
+function DownloadCard({ href, fileName, title, desc, icon }: { href: string; fileName: string; title: string; desc: string; icon: React.ReactNode }) {
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(href);
+      if (!response.ok) throw new Error("Download failed");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download error:", err);
+      window.open(href, "_blank");
+    }
+  };
+
   return (
     <a
       href={href}
+      onClick={handleDownload}
       className="group flex flex-col rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-blue-300 hover:shadow-md"
     >
       <div className="flex items-start justify-between">
