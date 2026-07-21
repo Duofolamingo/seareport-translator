@@ -4,8 +4,8 @@
 import { saveFile } from "./storage";
 import { existsSync } from "fs";
 
-import { readdirSync } from "fs";
-import { join } from "path";
+import { readdirSync, statSync } from "fs";
+import { join, basename } from "path";
 
 async function findChromePath(): Promise<string | null> {
   const paths = [
@@ -31,22 +31,34 @@ async function findChromePath(): Promise<string | null> {
   }
 
   const puppeteerCacheDirs = [
-    join(process.cwd(), "node_modules", ".cache", "puppeteer"),
+    "/vercel/.cache/puppeteer",
     "/home/vercel/.cache/puppeteer",
+    join(process.cwd(), "node_modules", ".cache", "puppeteer"),
     "/tmp/puppeteer_cache",
   ];
 
   for (const cacheDir of puppeteerCacheDirs) {
     try {
-      if (existsSync(cacheDir)) {
-        const entries = readdirSync(cacheDir, { withFileTypes: true });
-        for (const entry of entries) {
-          if (entry.isDirectory() && entry.name.startsWith("chrome")) {
-            const chromePath = join(cacheDir, entry.name, "chrome");
-            if (existsSync(chromePath)) return chromePath;
-            const chromeExePath = join(cacheDir, entry.name, "chrome.exe");
-            if (existsSync(chromeExePath)) return chromeExePath;
-          }
+      if (!existsSync(cacheDir)) continue;
+
+      const browserEntries = readdirSync(cacheDir, { withFileTypes: true });
+      for (const browserEntry of browserEntries) {
+        if (!browserEntry.isDirectory()) continue;
+        if (!browserEntry.name.startsWith("chrome")) continue;
+
+        const browserDir = join(cacheDir, browserEntry.name);
+        const platformEntries = readdirSync(browserDir, { withFileTypes: true });
+
+        for (const platformEntry of platformEntries) {
+          if (!platformEntry.isDirectory()) continue;
+
+          const platformDir = join(browserDir, platformEntry.name);
+          const chromeDirName = platformEntry.name.includes("linux") ? "chrome-linux64" : "chrome-win";
+          const chromePath = join(platformDir, chromeDirName, "chrome");
+          const chromeExePath = join(platformDir, chromeDirName, "chrome.exe");
+
+          if (existsSync(chromePath)) return chromePath;
+          if (existsSync(chromeExePath)) return chromeExePath;
         }
       }
     } catch {
@@ -63,10 +75,7 @@ export async function generatePdf(html: string): Promise<Buffer> {
 
   try {
     const chromePath = await findChromePath();
-    puppeteer = await loadPuppeteerCore();
-    if (!puppeteer) {
-      puppeteer = await loadPuppeteer();
-    }
+    puppeteer = await loadPuppeteer();
     if (!puppeteer) {
       throw new Error("Puppeteer not available");
     }
@@ -135,10 +144,7 @@ export async function generateImage(html: string, format: "png" | "jpeg" = "png"
 
   try {
     const chromePath = await findChromePath();
-    let puppeteer = await loadPuppeteerCore();
-    if (!puppeteer) {
-      puppeteer = await loadPuppeteer();
-    }
+    let puppeteer = await loadPuppeteer();
     if (!puppeteer) {
       throw new Error("Puppeteer not available");
     }
