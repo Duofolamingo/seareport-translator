@@ -4,21 +4,56 @@
 import { saveFile } from "./storage";
 import { existsSync } from "fs";
 
+import { readdirSync } from "fs";
+import { join } from "path";
+
 async function findChromePath(): Promise<string | null> {
   const paths = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    "/usr/bin/google-chrome",
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser",
+    "/usr/bin/chromium-browser-snap",
+    "/snap/bin/chromium",
+    "/opt/chromium/chrome",
+    "/opt/google/chrome/google-chrome",
+    "/usr/lib/chromium-browser/chromium-browser",
     "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
     process.env.LOCALAPPDATA + "\\Google\\Chrome\\Application\\chrome.exe",
     "C:\\Program Files\\Chromium\\chrome.exe",
-    "/usr/bin/google-chrome",
-    "/usr/bin/chromium",
-    "/usr/bin/chromium-browser",
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  ];
+  ].filter(Boolean);
 
   for (const path of paths) {
-    if (existsSync(path)) return path;
+    if (existsSync(path!)) return path!;
   }
+
+  const puppeteerCacheDirs = [
+    join(process.cwd(), "node_modules", ".cache", "puppeteer"),
+    "/home/vercel/.cache/puppeteer",
+    "/tmp/puppeteer_cache",
+  ];
+
+  for (const cacheDir of puppeteerCacheDirs) {
+    try {
+      if (existsSync(cacheDir)) {
+        const entries = readdirSync(cacheDir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (entry.isDirectory() && entry.name.startsWith("chrome")) {
+            const chromePath = join(cacheDir, entry.name, "chrome");
+            if (existsSync(chromePath)) return chromePath;
+            const chromeExePath = join(cacheDir, entry.name, "chrome.exe");
+            if (existsSync(chromeExePath)) return chromeExePath;
+          }
+        }
+      }
+    } catch {
+      continue;
+    }
+  }
+
   return null;
 }
 
@@ -27,15 +62,24 @@ export async function generatePdf(html: string): Promise<Buffer> {
   let browser: any;
 
   try {
-    puppeteer = await loadPuppeteer();
+    const chromePath = await findChromePath();
+    puppeteer = await loadPuppeteerCore();
+    if (!puppeteer) {
+      puppeteer = await loadPuppeteer();
+    }
     if (!puppeteer) {
       throw new Error("Puppeteer not available");
     }
 
-    browser = await puppeteer.launch({
+    const launchOptions: any = {
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
-    });
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--disable-dev-shm-usage", "--disable-software-rasterizer"],
+    };
+    if (chromePath) {
+      launchOptions.executablePath = chromePath;
+    }
+
+    browser = await puppeteer.launch(launchOptions);
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0", timeout: 30000 });
@@ -90,15 +134,24 @@ export async function generateImage(html: string, format: "png" | "jpeg" = "png"
   let browser: any;
 
   try {
-    const puppeteer = await loadPuppeteer();
+    const chromePath = await findChromePath();
+    let puppeteer = await loadPuppeteerCore();
+    if (!puppeteer) {
+      puppeteer = await loadPuppeteer();
+    }
     if (!puppeteer) {
       throw new Error("Puppeteer not available");
     }
 
-    browser = await puppeteer.launch({
+    const launchOptions: any = {
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
-    });
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--disable-dev-shm-usage", "--disable-software-rasterizer"],
+    };
+    if (chromePath) {
+      launchOptions.executablePath = chromePath;
+    }
+
+    browser = await puppeteer.launch(launchOptions);
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0", timeout: 30000 });
