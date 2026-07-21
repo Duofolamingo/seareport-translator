@@ -61,7 +61,7 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
   const isPdf = order.translatedUrl.endsWith(".pdf");
   const isWord = order.translatedUrl.endsWith(".docx");
 
-  const previewUrl = isWord
+  const previewUrl = (isWord || isPdf)
     ? `https://docs.google.com/viewer?url=${encodeURIComponent(order.translatedUrl)}&embedded=true`
     : order.translatedUrl;
 
