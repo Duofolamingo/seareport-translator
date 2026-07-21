@@ -106,7 +106,7 @@ export async function extractPdfText(buffer: Buffer): Promise<string> {
   try {
     // pdf-parse 在 ESM 项目中需要动态加载
     const mod = await import("pdf-parse");
-    const pdfParse = (mod as any).default || mod;
+    const pdfParse = ((mod as { default?: typeof import("pdf-parse") }).default || mod) as typeof import("pdf-parse");
     const data = await pdfParse(buffer);
     return data.text || "";
   } catch (err) {

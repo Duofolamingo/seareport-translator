@@ -7,11 +7,11 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const gbStandard = url.searchParams.get("gbStandard") || undefined;
-    const targetCountry = url.searchParams.get("targetCountry") as any | undefined;
-    const productCategory = (url.searchParams.get("productCategory") as any) || undefined;
+    const targetCountry = url.searchParams.get("targetCountry") || undefined;
+    const productCategory = url.searchParams.get("productCategory") || undefined;
     const search = url.searchParams.get("search") || undefined;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (gbStandard) where.gbStandard = { contains: gbStandard, mode: "insensitive" };
     if (targetCountry) where.targetCountry = targetCountry;
     if (productCategory) where.productCategory = productCategory;

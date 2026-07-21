@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { ok, fail, handleError } from "@/lib/api";
 import { runTranslationPipeline } from "@/lib/services/translationPipeline";
+import type { TargetLang } from "@/lib/services/translate";
+import type { PipelineInput } from "@/lib/services/translationPipeline";
 
 export async function POST(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   try {
@@ -23,13 +25,23 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
       data: { status: "PENDING", errorMessage: null, progress: 0, progressMessage: "重试中..." },
     });
 
+    const validFormats: PipelineInput["outputFormat"][] = ["PDF", "WORD", "PNG", "JPG", "COMPARISON"];
+    const validLangs: TargetLang[] = ["TH", "VI", "ID", "MS", "KM", "MY", "LO"];
+    const fileType = order.fileType === "IMAGE" ? "IMAGE" : "PDF";
+    const targetLang = validLangs.includes(order.targetLang as TargetLang)
+      ? (order.targetLang as TargetLang)
+      : "TH";
+    const outputFormat = validFormats.includes(order.outputFormat as PipelineInput["outputFormat"])
+      ? (order.outputFormat as PipelineInput["outputFormat"])
+      : "PDF";
+
     runTranslationPipeline({
       orderId: order.id,
       fileUrl: order.fileUrl,
       fileName: order.fileName,
-      fileType: order.fileType as "PDF" | "IMAGE",
-      targetLang: order.targetLang as any,
-      outputFormat: order.outputFormat as any,
+      fileType,
+      targetLang,
+      outputFormat,
     }).catch((err) => console.error("[Retry Pipeline Error]", err));
 
     return ok({ retried: true });

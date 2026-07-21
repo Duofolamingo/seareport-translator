@@ -19,9 +19,22 @@ type StandardMatch = {
   notes: string | null;
 };
 
+type Order = {
+  id: string;
+  fileName: string;
+  targetLang: string;
+  outputFormat: string;
+  reportType: string | null;
+  completedAt: string | null;
+  translatedUrl: string | null;
+  wordUrl: string | null;
+  comparisonUrl: string | null;
+  standardSheet: string | null;
+};
+
 export default function ResultPage({ params }: { params: Promise<{ id: string }> }) {
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [order, setOrder] = useState<any>(null);
+  const [order, setOrder] = useState<Order | null>(null);
   const [showStandard, setShowStandard] = useState(true);
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +57,8 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
   }
 
   const lang = LANGUAGES.find((l) => l.code === order.targetLang);
-  const standards: StandardMatch[] = (order.standardSheet as any)?.mappings || [];
+  const parsedStandardSheet = order.standardSheet ? (JSON.parse(order.standardSheet) as { mappings?: StandardMatch[] }) : null;
+  const standards: StandardMatch[] = parsedStandardSheet?.mappings || [];
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">

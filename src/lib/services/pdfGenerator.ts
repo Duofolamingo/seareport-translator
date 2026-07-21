@@ -2,10 +2,8 @@
 // 使用 puppeteer-core + 系统浏览器（优先查找已安装的 Chrome）
 
 import { saveFile } from "./storage";
-import { existsSync } from "fs";
-
-import { readdirSync, statSync } from "fs";
-import { join, basename } from "path";
+import { existsSync, readdirSync } from "fs";
+import { join } from "path";
 
 async function findChromePath(): Promise<string | null> {
   const paths = [
@@ -19,12 +17,15 @@ async function findChromePath(): Promise<string | null> {
     "/opt/chromium/chrome",
     "/opt/google/chrome/google-chrome",
     "/usr/lib/chromium-browser/chromium-browser",
-    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-    process.env.LOCALAPPDATA + "\\Google\\Chrome\\Application\\chrome.exe",
-    "C:\\Program Files\\Chromium\\chrome.exe",
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   ].filter(Boolean);
+
+  if (process.platform === "win32" && process.env.LOCALAPPDATA) {
+    paths.push(`${process.env.LOCALAPPDATA}\\Google\\Chrome\\Application\\chrome.exe`);
+    paths.push("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
+    paths.push("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe");
+    paths.push("C:\\Program Files\\Chromium\\chrome.exe");
+  }
 
   for (const path of paths) {
     if (existsSync(path!)) return path!;
@@ -53,12 +54,17 @@ async function findChromePath(): Promise<string | null> {
           if (!platformEntry.isDirectory()) continue;
 
           const platformDir = join(browserDir, platformEntry.name);
-          const chromeDirName = platformEntry.name.includes("linux") ? "chrome-linux64" : "chrome-win";
+          let chromeDirName = "chrome-linux64";
+          if (platformEntry.name.includes("win")) chromeDirName = "chrome-win";
+          else if (platformEntry.name.includes("mac")) chromeDirName = "chrome-mac";
+
           const chromePath = join(platformDir, chromeDirName, "chrome");
           const chromeExePath = join(platformDir, chromeDirName, "chrome.exe");
+          const chromeMacPath = join(platformDir, chromeDirName, "Chromium.app", "Contents", "MacOS", "Chromium");
 
           if (existsSync(chromePath)) return chromePath;
           if (existsSync(chromeExePath)) return chromeExePath;
+          if (existsSync(chromeMacPath)) return chromeMacPath;
         }
       }
     } catch {
@@ -70,8 +76,8 @@ async function findChromePath(): Promise<string | null> {
 }
 
 export async function generatePdf(html: string): Promise<Buffer> {
-  let puppeteer: any;
-  let browser: any;
+  let puppeteer: PuppeteerLike | null = null;
+  let browser: Awaited<ReturnType<PuppeteerLike["launch"]>> | null = null;
 
   try {
     const chromePath = await findChromePath();
@@ -80,7 +86,7 @@ export async function generatePdf(html: string): Promise<Buffer> {
       throw new Error("Puppeteer not available");
     }
 
-    const launchOptions: any = {
+    const launchOptions: Record<string, unknown> = {
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--disable-dev-shm-usage", "--disable-software-rasterizer"],
     };
@@ -119,14 +125,26 @@ export async function generatePdf(html: string): Promise<Buffer> {
   }
 }
 
-async function loadPuppeteer(): Promise<any | null> {
+type PuppeteerLike = {
+  launch: (options: Record<string, unknown>) => Promise<{
+    newPage: () => Promise<{
+      setContent: (html: string, options: Record<string, unknown>) => Promise<void>;
+      pdf: (options: Record<string, unknown>) => Promise<Uint8Array>;
+      screenshot: (options: Record<string, unknown>) => Promise<Uint8Array>;
+      $(selector: string): Promise<{ boundingBox: () => Promise<{ x: number; y: number; width: number; height: number } | null> } | null>;
+    }>;
+    close: () => Promise<void>;
+  }>;
+};
+
+async function loadPuppeteer(): Promise<PuppeteerLike | null> {
   try {
     const mod = await import("puppeteer");
-    return (mod as any).default || mod;
+    return ((mod as unknown as { default?: PuppeteerLike }).default || mod) as PuppeteerLike;
   } catch {
     try {
       const mod = await import("puppeteer-core");
-      return (mod as any).default || mod;
+      return ((mod as unknown as { default?: PuppeteerLike }).default || mod) as PuppeteerLike;
     } catch {
       return null;
     }
@@ -140,7 +158,7 @@ export async function savePdf(buffer: Buffer, fileName: string): Promise<string>
 }
 
 export async function generateImage(html: string, format: "png" | "jpeg" = "png"): Promise<Buffer> {
-  let browser: any;
+  let browser: Awaited<ReturnType<PuppeteerLike["launch"]>> | null = null;
 
   try {
     const chromePath = await findChromePath();
@@ -149,7 +167,7 @@ export async function generateImage(html: string, format: "png" | "jpeg" = "png"
       throw new Error("Puppeteer not available");
     }
 
-    const launchOptions: any = {
+    const launchOptions: Record<string, unknown> = {
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--disable-dev-shm-usage", "--disable-software-rasterizer"],
     };

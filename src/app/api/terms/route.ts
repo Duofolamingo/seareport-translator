@@ -7,9 +7,9 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const search = url.searchParams.get("search") || undefined;
-    const category = (url.searchParams.get("category") as any) || undefined;
+    const category = url.searchParams.get("category") || undefined;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (category) where.category = category;
     if (search) {
       where.OR = [
