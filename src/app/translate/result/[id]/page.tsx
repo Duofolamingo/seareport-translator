@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Download, FileText, RefreshCw, Globe, ChevronDown, ChevronUp, FileType } from "lucide-react";
+import { CheckCircle2, Download, FileText, RefreshCw, Globe, ChevronDown, ChevronUp, FileType, Eye } from "lucide-react";
 import { LANGUAGES, REPORT_TYPE_LABEL } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 
@@ -71,6 +71,18 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
           </div>
         </CardContent>
       </Card>
+
+      {/* 预览按钮 */}
+      {order.translatedUrl && (
+        <div className="mt-6">
+          <Button asChild className="w-full" size="lg">
+            <Link href={`/translate/preview/${order.id}`}>
+              <Eye className="mr-2 h-5 w-5" />
+              在线预览翻译报告
+            </Link>
+          </Button>
+        </div>
+      )}
 
       {/* 下载按钮 */}
       <div className="mt-6 grid gap-3 sm:grid-cols-3">

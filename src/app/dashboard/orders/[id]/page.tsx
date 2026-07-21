@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Download, RefreshCw, FileText, FileType, Globe, AlertCircle } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, FileText, FileType, Globe, AlertCircle, Eye } from "lucide-react";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_COLOR, LANGUAGES, REPORT_TYPE_LABEL } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 
@@ -112,6 +112,13 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
               <p className="text-sm text-slate-500">任务尚未完成</p>
             ) : (
               <>
+                {order.translatedUrl && (
+                  <Link href={`/translate/preview/${order.id}`} className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50/50 p-3 hover:border-blue-300 hover:bg-blue-50">
+                    <span className="flex items-center gap-2 text-sm font-medium text-blue-700">
+                      <Eye className="h-4 w-4" /> 在线预览
+                    </span>
+                  </Link>
+                )}
                 {order.translatedUrl && (
                   <a href={order.translatedUrl} className="flex items-center justify-between rounded-lg border border-slate-200 p-3 hover:border-blue-300 hover:bg-blue-50/50">
                     <span className="flex items-center gap-2 text-sm font-medium text-slate-900">
