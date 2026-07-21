@@ -91,8 +91,8 @@ function LoginForm() {
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white">
             <Languages className="h-6 w-6" />
           </div>
-          <h1 className="mt-4 text-2xl font-bold text-slate-900">登录 SeaReport</h1>
-          <p className="mt-1 text-sm text-slate-500">跨境质检报告 AI 翻译平台</p>
+          <h1 className="mt-4 text-2xl font-bold text-slate-900">AI 赋能跨境电商</h1>
+          <p className="mt-1 text-sm text-slate-500">产品计量认证国际互认应用平台</p>
         </div>
 
         <div className="mt-6 flex rounded-lg border border-slate-200 bg-slate-50 p-1">

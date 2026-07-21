@@ -21,15 +21,14 @@ export default function HomePage() {
                 专为跨境电商打造 · AI 翻译 + 标准智能映射
               </div>
               <h1 className="mt-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
-                一键翻译质检报告
+                AI 赋能跨境电商
                 <br />
                 <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  轻松出海东南亚
+                  产品计量认证国际互认应用
                 </span>
               </h1>
               <p className="mt-6 text-base text-slate-600 sm:text-lg">
-                5 分钟将中文产品质检报告（PDF/图片）翻译为 7 种东南亚官方语言，
-                并自动生成 GB 国家标准与目标国对应标准的对照附页。
+                智能翻译产品质检报告，自动匹配国际标准，助力企业跨境贸易合规高效。
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Button asChild size="lg" className="w-full sm:w-auto">
@@ -110,11 +109,11 @@ export default function HomePage() {
             <div className="grid items-center gap-12 lg:grid-cols-2">
               <div>
                 <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-                  为什么选择 SeaReport Translator？
+                  为什么选择我们？
                 </h2>
                 <p className="mt-4 text-slate-600">
                   传统人工翻译一份质检报告需要 1-2 天，价格 500-2000 元。
-                  SeaReport Translator 通过 AI 自动化，将时间和成本压缩到 5 分钟和几元钱。
+                  我们通过 AI 自动化，将时间和成本压缩到 5 分钟和几元钱。
                 </p>
                 <div className="mt-8 space-y-4">
                   {[

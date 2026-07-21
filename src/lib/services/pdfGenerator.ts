@@ -23,49 +23,60 @@ async function findChromePath(): Promise<string | null> {
 }
 
 export async function generatePdf(html: string): Promise<Buffer> {
+  let puppeteer: any;
+  let browser: any;
+
   try {
-    const chromePath = await findChromePath();
-    if (!chromePath) {
-      console.warn("[PDF] Chrome/Chromium not found, returning HTML");
-      return Buffer.from(html, "utf-8");
-    }
-
-    const puppeteer = await loadPuppeteerCore();
+    puppeteer = await loadPuppeteer();
     if (!puppeteer) {
-      console.warn("[PDF] puppeteer-core not available, returning HTML");
-      return Buffer.from(html, "utf-8");
+      throw new Error("Puppeteer not available");
     }
 
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       headless: true,
-      executablePath: chromePath,
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
     });
 
-    try {
-      const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: "networkidle0", timeout: 30000 });
-      const pdf = await page.pdf({
-        format: "A4",
-        margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" },
-        printBackground: true,
-      });
-      return Buffer.from(pdf);
-    } finally {
-      await browser.close();
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0", timeout: 30000 });
+    const pdf = await page.pdf({
+      format: "A4",
+      margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" },
+      printBackground: true,
+    });
+
+    const pdfBuffer = Buffer.from(pdf);
+    const isValidPdf = pdfBuffer.toString("utf-8", 0, 4) === "%PDF";
+    if (!isValidPdf) {
+      throw new Error("Generated content is not a valid PDF");
     }
+
+    return pdfBuffer;
   } catch (err) {
-    console.warn("[PDF] Puppeteer error, returning HTML:", (err as Error).message);
-    return Buffer.from(html, "utf-8");
+    console.warn("[PDF] Puppeteer error:", (err as Error).message);
+    throw new Error(`PDF generation failed: ${(err as Error).message}`);
+  } finally {
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (e) {
+        console.warn("[PDF] Error closing browser:", e);
+      }
+    }
   }
 }
 
-async function loadPuppeteerCore(): Promise<any | null> {
+async function loadPuppeteer(): Promise<any | null> {
   try {
-    const mod = await import("puppeteer-core");
+    const mod = await import("puppeteer");
     return (mod as any).default || mod;
   } catch {
-    return null;
+    try {
+      const mod = await import("puppeteer-core");
+      return (mod as any).default || mod;
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -76,59 +87,63 @@ export async function savePdf(buffer: Buffer, fileName: string): Promise<string>
 }
 
 export async function generateImage(html: string, format: "png" | "jpeg" = "png"): Promise<Buffer> {
+  let browser: any;
+
   try {
-    const chromePath = await findChromePath();
-    if (!chromePath) {
-      console.warn("[Image] Chrome/Chromium not found, returning HTML");
-      return Buffer.from(html, "utf-8");
-    }
-
-    const puppeteer = await loadPuppeteerCore();
+    const puppeteer = await loadPuppeteer();
     if (!puppeteer) {
-      console.warn("[Image] puppeteer-core not available, returning HTML");
-      return Buffer.from(html, "utf-8");
+      throw new Error("Puppeteer not available");
     }
 
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       headless: true,
-      executablePath: chromePath,
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
     });
 
-    try {
-      const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: "networkidle0", timeout: 30000 });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0", timeout: 30000 });
 
-      const body = await page.$("body");
-      if (!body) {
-        console.warn("[Image] Body element not found");
-        return Buffer.from(html, "utf-8");
-      }
-
-      const clip = await body.boundingBox();
-      if (!clip) {
-        console.warn("[Image] Bounding box not found");
-        return Buffer.from(html, "utf-8");
-      }
-
-      const screenshot = await page.screenshot({
-        type: format,
-        clip: {
-          x: clip.x,
-          y: clip.y,
-          width: Math.min(clip.width, 1920),
-          height: clip.height,
-        },
-        printBackground: true,
-        quality: 100,
-      });
-      return Buffer.from(screenshot);
-    } finally {
-      await browser.close();
+    const body = await page.$("body");
+    if (!body) {
+      throw new Error("Body element not found");
     }
+
+    const clip = await body.boundingBox();
+    if (!clip) {
+      throw new Error("Bounding box not found");
+    }
+
+    const screenshot = await page.screenshot({
+      type: format,
+      clip: {
+        x: clip.x,
+        y: clip.y,
+        width: Math.min(clip.width, 1920),
+        height: clip.height,
+      },
+      printBackground: true,
+      quality: 100,
+    });
+
+    const imgBuffer = Buffer.from(screenshot);
+    const isValidImage = (format === "png" && imgBuffer.toString("hex", 0, 8) === "89504e470d0a1a0a") ||
+                         (format === "jpeg" && imgBuffer.toString("hex", 0, 4) === "ffd8ffe0");
+    if (!isValidImage) {
+      throw new Error(`Generated content is not a valid ${format.toUpperCase()} image`);
+    }
+
+    return imgBuffer;
   } catch (err) {
-    console.warn("[Image] Puppeteer error, returning HTML:", (err as Error).message);
-    return Buffer.from(html, "utf-8");
+    console.warn("[Image] Puppeteer error:", (err as Error).message);
+    throw new Error(`Image generation failed: ${(err as Error).message}`);
+  } finally {
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (e) {
+        console.warn("[Image] Error closing browser:", e);
+      }
+    }
   }
 }
 

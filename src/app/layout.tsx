@@ -32,10 +32,10 @@ const notoMyanmar = Noto_Sans_Myanmar({
 });
 
 export const metadata: Metadata = {
-  title: "SeaReport Translator - 一键翻译质检报告，轻松出海东南亚",
+  title: "AI 赋能跨境电商:产品计量认证国际互认应用",
   description:
-    "面向跨境电商卖家的东南亚质检报告 AI 翻译平台。5 分钟将中文质检报告翻译为泰语、越南语、印尼语、马来语等 7 种东南亚语言，并自动生成 GB 标准对照表。",
-  keywords: ["质检报告翻译", "东南亚翻译", "GB标准", "跨境电商", "TIS标准", "SNI标准"],
+    "AI 赋能跨境电商产品计量认证国际互认应用平台，助力企业跨境贸易合规高效。提供质检报告翻译、标准对照等服务。",
+  keywords: ["跨境电商", "产品认证", "计量认证", "国际互认", "质检报告翻译", "GB标准"],
 };
 
 export default function RootLayout({

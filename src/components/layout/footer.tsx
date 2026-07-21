@@ -11,10 +11,10 @@ export function Footer() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
                 <Languages className="h-5 w-5" />
               </div>
-              <span className="text-base font-semibold tracking-tight">SeaReport Translator</span>
+              <span className="text-base font-semibold tracking-tight">AI 赋能跨境电商</span>
             </Link>
             <p className="mt-4 max-w-md text-sm text-slate-500">
-              一键翻译质检报告，轻松出海东南亚。专为跨境电商卖家打造的 AI 翻译平台。
+              产品计量认证国际互认应用平台，助力企业跨境贸易合规高效。
             </p>
           </div>
           <div>
@@ -35,7 +35,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 border-t border-slate-200 pt-6 text-center text-xs text-slate-400">
-          <p>© 2026 SeaReport Translator. 让跨境出海更简单。</p>
+          <p>© 2026 AI 赋能跨境电商. 产品计量认证国际互认应用。</p>
         </div>
       </div>
     </footer>

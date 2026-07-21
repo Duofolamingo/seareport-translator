@@ -10,8 +10,7 @@ export function Navbar() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
             <Languages className="h-5 w-5" />
           </div>
-          <span className="text-base font-semibold tracking-tight">SeaReport</span>
-          <span className="hidden text-xs font-medium text-slate-400 sm:inline">Translator</span>
+          <span className="text-sm font-semibold tracking-tight">AI 赋能跨境电商</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
